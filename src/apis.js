@@ -1,6 +1,6 @@
+import { LINKEDIN_ACESSTOKEN_URL } from './actions';
 import {
   GET_LINKEDIN_USERINFO,
-  LINKEDIN_ACESSTOKEN_URL,
   REGISTER_IMAGE_ON_LINKEDIN,
   SHARE_ON_LINKEDINV1,
   SHARE_ON_LINKEDINV2,
@@ -36,8 +36,7 @@ class Api {
           Authorization: `Bearer ${access_token}`
         }
       }
-      axios
-        .get(GET_LINKEDIN_USERINFO, config)
+      axios.get(GET_LINKEDIN_USERINFO, config)
         .then((result) => {
           success(result)
         })

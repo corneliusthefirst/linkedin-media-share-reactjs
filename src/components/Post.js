@@ -1,14 +1,33 @@
 import { Avatar } from "@material-ui/core"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import "./Post.css"
 import ThumbUpIcon from "@material-ui/icons/ThumbUp"
 import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline"
-import AccountCircleIcon from "@material-ui/icons/AccountCircle"
 import NearMeIcon from "@material-ui/icons/NearMe"
-import { ExpandMoreOutlined } from "@material-ui/icons"
 import moment from "moment"
+import { LINKEDIN_URL, popupWindow, receiveLinkedInMessage } from "../actions"
 
-function Post({ profilePic, url, username, timestamp, message, type }) {
+function Post(feed) {
+  const { profilePic, url, username, timestamp, message, type } = feed
+  const popup = useRef()
+  
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('message', (props) => {receiveLinkedInMessage({...props, popup: popup.current, feed: feed})})
+    }
+  }, [feed])
+
+  const signInWithLinkedin = () => {
+    window.addEventListener('message', (props) => {receiveLinkedInMessage({...props, popup: popup.current})})
+    popup.current = popupWindow(
+      LINKEDIN_URL,
+      '_blank',
+      window,
+      0.6 * window.innerWidth,
+      0.8 * window.innerHeight
+    )
+  }
+
   return (
     <div className="post" style={{width: 600}}>
       <div className="post__top">
@@ -43,7 +62,7 @@ function Post({ profilePic, url, username, timestamp, message, type }) {
           <ChatBubbleOutlineIcon />
           <p>Comment</p>
         </div>
-        <div className="post__option">
+        <div className="post__option" onClick={signInWithLinkedin}>
           <NearMeIcon />
           <p>Share</p>
         </div>

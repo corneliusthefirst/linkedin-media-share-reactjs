@@ -3,6 +3,17 @@ import { CORS_PROXY, LINKEDIN_CLIENT_ID, LINKEDIN_SCOPE, LINKEDIN_STATE , LINKED
 
 const apiSA = new Api()
 
+export const popupWindow = (url, windowName, win, w, h) => {
+  const y = win.top.outerHeight / 2 + win.top.screenY - h / 2
+  const x = win.top.outerWidth / 2 + win.top.screenX - w / 2
+  return win.open(
+    url,
+    windowName,
+    `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
+  )
+}
+
+
 export const queryToObject = (queryString) => {
   const pairsString =
     queryString[0] === '?' ? queryString.slice(1) : queryString
@@ -53,9 +64,11 @@ export const LINKEDIN_ACESSTOKEN_URL = (code) =>
   )
 
 
-  export const receiveLinkedInMessageV2 = ({
+  export const receiveLinkedInMessage = ({
     origin,
-    data: { state, code, error, ...rest }
+    data: { state, code, error, ...rest },
+    popup,
+    feed
   }) => {
     console.log('heredata1', origin, window.location.origin)
     console.log(
@@ -68,92 +81,6 @@ export const LINKEDIN_ACESSTOKEN_URL = (code) =>
       error,
       rest
     )
-    if (origin !== window.location.origin || state !== LINKEDIN_STATE) return
-
-    console.log('heredatabro', state, 'code', code)
-    if (code) {
-      const postType = "IMAGE" //IMAGE or VIDEO - mediaTypeByPostLinkedInKey[feed.type.toUpperCase()] || 'IMAGE'
-
-      apiSA.getLinkedUserAccessToken(code).then((token) => {
-        console.log('token', token)
-        apiSA.getLinkInUserInfo(token.data.access_token).then((userInfo) => {
-          console.log('userInfo', userInfo)
-
-          apiSA
-            .registerImageOnLinkedIn(
-              token.data.access_token,
-              userInfo.data.id,
-              postType
-            )
-            .then((registrationInfo) => {
-              console.log('registrationInfo', registrationInfo)
-              const registerData = {
-                uploadUrl:
-                  registrationInfo.data.value.uploadMechanism[
-                    'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'
-                  ].uploadUrl,
-                asset: registrationInfo.data.value.asset
-              }
-
-              apiSA
-                .uploadImageBinaryOnLinkedIn(
-                  postType === 'VIDEO' ? null : token.data.access_token,
-                  registerData.uploadUrl,
-                  //getMediaUrl(feed.type, feed.mediaId) this is the url of the media to upload
-                )
-                .then((uploadInfo) => {
-                  console.log('upload sucessful', uploadInfo)
-
-                  //proceed to sharing
-
-                  const shared_data = {
-                    author: `urn:li:person:${userInfo.data.id}`,
-                    lifecycleState: 'PUBLISHED',
-                    specificContent: {
-                      'com.linkedin.ugc.ShareContent': {
-                        shareCommentary: {
-                          text: 'here the commentary before post'
-                        },
-                        shareMediaCategory: postType,
-                        media: [
-                          {
-                            status: 'READY',
-                            description: {
-                              text: "text", //feed.text
-                            },
-                            media: registerData.asset,
-                            originalUrl: "the share url that can permit redirection to the app", //shareUrl,
-                            title: {
-                              text: "the title of the post" //title
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    visibility: {
-                      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-                    }
-                  }
-
-               
-
-                  apiSA
-                    .sharePostOnLinkedIn(
-                      token.data.access_token,
-                      JSON.stringify(shared_data)
-                    )
-                    .then((result) => {
-                      console.log('shared data', shared_data)
-                      console.log('shared on linked in', result)
-                    })
-                })
-            })
-        })
-      })
-    } else if (
-      error &&
-      !['user_cancelled_login', 'user_cancelled_authorize'].includes(error)
-    ) {
-    
-    }
+  
+    popup.close()
   }
