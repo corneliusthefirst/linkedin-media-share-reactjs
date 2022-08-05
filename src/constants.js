@@ -2,8 +2,8 @@ const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'
 const LINKEDIN_STATE = 'unikstringhardtoguessforcsrf'
 const LINKEDIN_SCOPE = 'r_liteprofile r_emailaddress w_member_social'
 const LINKEDIN_REDIRECT = 'http://localhost:3000'
-const LINKEDIN_CLIENT_ID = '786pgkqkaz5dbv'
-const LINKEDIN_CLIENT_SECRET = 'c8vknO9j1oDxL4xg'
+const LINKEDIN_CLIENT_ID = ''//
+const LINKEDIN_CLIENT_SECRET = ''//
 
 const SHARE_ON_LINKEDINV1 = `${CORS_PROXY}/https://api.linkedin.com/v2/shares`
 const SHARE_ON_LINKEDINV2 = `${CORS_PROXY}/https://api.linkedin.com/v2/ugcPosts`
